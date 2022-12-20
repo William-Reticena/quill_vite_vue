@@ -1,0 +1,1 @@
+export { quillConfig } from './quillConfig';

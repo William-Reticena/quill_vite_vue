@@ -2,44 +2,59 @@
   <div ref="quillRef" id="editor"></div>
 
   <button class="ql-imageHandler" @click="handleClick">Salvar</button>
+  <button class="ql-imageHandler" @click="handleEdit">Editar</button>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
-import { quillConfig } from './editorConfig/quillConfig'
+import { defineComponent, onMounted, onUnmounted, onUpdated, ref } from 'vue'
 import Quill from 'quill'
+import 'katex/dist/katex.min.css'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
+import { quillConfig } from './editorConfig'
 
 export default defineComponent({
   name: 'QuillEditor',
   emits: ['save'],
   props: {
-    value: { type: String, required: true },
+    content: { type: String, required: true },
   },
-  setup({ value }, { emit }) {
+  setup({ content }, { emit }) {
     const quillRef = ref<Element | Quill>()
 
-    const initEditor = () => {
+    const initEditor = (): void => {
       quillRef.value = new Quill(quillRef.value as Element, quillConfig)
+      const editor = quillRef.value as Quill
+      const storage = sessionStorage.getItem('editorContent')
+      editor.disable()
+      console.log(quillRef.value)
 
-      if (value) {
-        const editor = quillRef.value as Quill
-        editor.root.innerHTML = value
-      }
+      if (content) editor.root.innerHTML = content
+
+      if (!content && storage) editor.root.innerHTML = storage
     }
 
-    const handleClick = () => {
+    const handleClick = (): void => {
       const editor = quillRef.value as Quill
+      console.log(editor)
 
-      emit('save', editor.root.innerHTML)
+      editor.disable()
+      sessionStorage.setItem('editorContent', editor.root.innerHTML)
+      // emit('save', editor.root.innerHTML)
+    }
+
+    const handleEdit = () => {
+      const editor = quillRef.value as Quill
+      editor.enable()
+      editor.focus()
     }
 
     onMounted(initEditor)
 
     return {
-      editorRef: quillRef,
+      quillRef,
       handleClick,
+      handleEdit,
     }
   },
 })
