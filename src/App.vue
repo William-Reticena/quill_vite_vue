@@ -1,5 +1,5 @@
 <template>
-  <quill-editor v-model="editor" />
+  <quill-editor :value="editorContent" @save="handleEditorClick" />
 </template>
 
 <script lang="ts">
@@ -11,11 +11,13 @@ export default defineComponent({
   name: 'App',
   components: { QuillEditor },
   setup() {
-    const editor = ref('')
+    const editorContent = ref(teste)
 
-    watch(editor, () => console.log('aqui', editor.value))
+    const handleEditorClick = (editorValue: string) => {
+      editorContent.value = editorValue
+    }
 
-    return { editor }
+    return { editorContent, handleEditorClick }
   },
 })
 </script>

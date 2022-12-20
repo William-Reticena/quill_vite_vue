@@ -1,11 +1,11 @@
 <template>
-  <div ref="editorRef" id="editor"></div>
+  <div ref="quillRef" id="editor"></div>
 
   <button class="ql-imageHandler" @click="handleClick">Salvar</button>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUpdated, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { quillConfig } from './editorConfig/quillConfig'
 import Quill from 'quill'
 import 'quill/dist/quill.core.css'
@@ -13,50 +13,32 @@ import 'quill/dist/quill.snow.css'
 
 export default defineComponent({
   name: 'QuillEditor',
+  emits: ['save'],
   props: {
-    modelValue: {
-      type: String,
-      required: true,
-    },
+    value: { type: String, required: true },
   },
-  setup({ modelValue }, { emit }) {
-    const editorRef = ref<Element | Quill>()
+  setup({ value }, { emit }) {
+    const quillRef = ref<Element | Quill>()
 
     const initEditor = () => {
-      editorRef.value = new Quill(editorRef.value as Element, quillConfig)
+      quillRef.value = new Quill(quillRef.value as Element, quillConfig)
 
-      if (modelValue) {
-        console.log('model')
-
-        const editor = editorRef.value as Quill
-        editor.root.innerHTML = modelValue
+      if (value) {
+        const editor = quillRef.value as Quill
+        editor.root.innerHTML = value
       }
     }
 
     const handleClick = () => {
-      console.log(editorRef.value)
+      const editor = quillRef.value as Quill
 
-      const editor = editorRef.value as Quill
-      console.log('click', editor)
-
-      if (editor.root && editor.root.innerHTML) emit('update:modelValue', editor.root.innerHTML)
-      // const t = document.getElementById('editor')
-      // console.log('t', t?.innerHTML)
-
-      // else emit('update:modelValue', document.getElementById('editor'))
+      emit('save', editor.root.innerHTML)
     }
 
     onMounted(initEditor)
-    onUpdated(() => {
-      const editor = editorRef.value as Quill
-      console.log(editor)
-
-      // if (!editor.root) editorRef.value = new Quill(editorRef.value as Element, quillConfig)
-      console.log('update')
-    })
 
     return {
-      editorRef,
+      editorRef: quillRef,
       handleClick,
     }
   },
